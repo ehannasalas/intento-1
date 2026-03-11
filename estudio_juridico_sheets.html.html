@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudio Juridico - Registro de la Propiedad</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#eef1f7;color:#222;min-height:100vh}
+header{background:linear-gradient(135deg,#1a3a6b,#2563b5);color:#fff;padding:16px 26px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+header h1{font-size:1.15rem;font-weight:700}
+header p{font-size:.76rem;opacity:.8;margin-top:2px}
+.badge{background:#fbbf24;color:#1a3a6b;border-radius:20px;padding:3px 13px;font-size:.73rem;font-weight:700;white-space:nowrap}
+.container{max-width:980px;margin:24px auto;padding:0 14px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:18px;overflow:hidden}
+.card-header{background:#1a3a6b;color:#fff;padding:11px 17px;font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:9px}
+.step{background:#fbbf24;color:#1a3a6b;border-radius:50%;width:23px;height:23px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0}
+.card-body{padding:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:580px){.row2{grid-template-columns:1fr}}
+.drop-zone{border:2px dashed #b0bec5;border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa}
+.drop-zone:hover,.drop-zone.dragover{border-color:#2563b5;background:#eff6ff}
+.drop-zone .icon{font-size:1.6rem;margin-bottom:4px}
+.drop-zone p{color:#666;font-size:.83rem}
+.drop-zone input{display:none}
+.mza-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.mza-row select{flex:1;padding:8px 11px;border:2px solid #d1d5db;border-radius:8px;font-size:.86rem;min-width:160px}
+.mza-row select:focus{border-color:#2563b5;outline:none}
+.preview-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px;margin-top:11px}
+.preview-box h4{font-size:.83rem;color:#1a3a6b;margin-bottom:7px;font-weight:700}
+.lote-grid{display:flex;flex-wrap:wrap;gap:4px}
+.lote-chip{background:#fff;border:1px solid #cbd5e1;border-radius:6px;padding:3px 8px;font-size:.73rem;color:#334155}
+.lote-chip .mat{color:#2563b5;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-size:.84rem;font-weight:700;cursor:pointer;transition:.2s}
+.btn-blue{background:#1a3a6b;color:#fff}.btn-blue:hover{background:#2563b5}
+.btn-green{background:#166534;color:#fff}.btn-green:hover{background:#15803d}
+.btn-orange{background:#b45309;color:#fff}.btn-orange:hover{background:#d97706}
+.btn-red{background:#991b1b;color:#fff}.btn-red:hover{background:#dc2626}
+.btn:disabled{background:#9ca3af;cursor:not-allowed;opacity:.7}
+.actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.alert{padding:9px 13px;border-radius:8px;margin-top:9px;font-size:.82rem;line-height:1.5}
+.alert-info{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af}
+.alert-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.alert-warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.alert-error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+.pdf-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.chip{background:#eff6ff;border:1px solid #93c5fd;border-radius:20px;padding:3px 10px;font-size:.74rem;color:#1e40af;display:flex;align-items:center;gap:3px}
+.chip button{background:none;border:none;cursor:pointer;color:#94a3b8;font-size:.8rem;padding:0}
+.chip button:hover{color:#ef4444}
+.tbl-wrap{overflow-x:auto;margin-top:13px}
+table{width:100%;border-collapse:collapse;font-size:.79rem}
+th{background:#1a3a6b;color:#fff;padding:7px 9px;text-align:left;white-space:nowrap}
+td{padding:6px 9px;border-bottom:1px solid #eee;vertical-align:middle}
+tr:hover td{background:#f5f7ff}
+.tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.71rem;font-weight:600}
+.tag-ok{background:#dcfce7;color:#166534}
+.tag-warn{background:#fef9c3;color:#854d0e}
+.tag-no{background:#fee2e2;color:#991b1b}
+.summ{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}
+@media(max-width:480px){.summ{grid-template-columns:repeat(2,1fr)}}
+.summ-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px;text-align:center}
+.summ-item .n{font-size:1.4rem;font-weight:700;color:#1a3a6b}
+.summ-item .l{font-size:.7rem;color:#64748b;margin-top:1px}
+.warn-box{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:11px;margin-top:11px;font-size:.82rem;color:#92400e}
+.warn-box ul{margin-left:16px;margin-top:5px}
+.warn-box li{margin-bottom:3px}
+.phase-badge{background:#e0e7ff;color:#3730a3;border-radius:6px;padding:3px 10px;font-size:.75rem;font-weight:600;display:inline-block;margin-bottom:10px}
+.login-box{text-align:center;padding:28px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:10px}
+.login-box p{color:#64748b;margin-bottom:14px;font-size:.88rem}
+.user-info{display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;margin-bottom:12px}
+.user-info img{width:32px;height:32px;border-radius:50%}
+.user-info .name{font-weight:700;color:#166534;font-size:.88rem}
+.user-info .email{color:#555;font-size:.76rem}
+.code-block{background:#1e1e2e;color:#cdd6f4;border-radius:8px;padding:14px;font-family:monospace;font-size:.76rem;overflow-x:auto;margin-top:9px;white-space:pre;line-height:1.6;max-height:360px;overflow-y:auto}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>&#9878; Estudio Juridico &mdash; Registro de la Propiedad Cordoba</h1>
+    <p>CORNET / LOS CERRILLOS &middot; Conectado directo a Google Sheets</p>
+  </div>
+  <span class="badge">v4.0 Google Sheets</span>
+</header>
+<div class="container">
+
+<div class="card" id="loginCard">
+  <div class="card-header">&#128274; Conectar con Google</div>
+  <div class="card-body">
+    <div id="userInfo" style="display:none"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:.83rem;font-weight:700;color:#1a3a6b;display:block;margin-bottom:5px">&#128202; Link de tu Google Sheets</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="inputSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." 
+          style="flex:1;padding:8px 11px;border:2px solid #d1d5db;border-radius:8px;font-size:.83rem"
+          value="https://docs.google.com/spreadsheets/d/1ujyd4Dp2oLAJbK8j5yLEk1vsgwtKdCLJ5PZPceMptyk/edit">
+        <button class="btn btn-blue" onclick="cambiarSheets()" style="white-space:nowrap">&#10003; Usar este Sheets</button>
+      </div>
+      <div id="sheetsUrlStatus" style="font-size:.78rem;color:#166534;margin-top:4px"></div>
+    </div>
+    <div class="login-box" id="loginBox">
+      <p>Conect&aacute;te con tu cuenta de Google para leer y escribir directo en tu Sheets.</p>
+      <button class="btn btn-blue" onclick="loginGoogle()" style="margin:0 auto;padding:11px 28px;font-size:.95rem;display:flex;align-items:center;gap:10px">
+        <img src="https://www.google.com/favicon.ico" width="18" height="18">
+        Iniciar sesi&oacute;n con Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="card" id="fase1Card" style="display:none">
+  <div class="card-header"><span class="step">A</span> FASE 1 &mdash; Cargar manzana en Google Sheets</div>
+  <div class="card-body">
+    <div class="phase-badge">&#128203; Paso previo al tramite en Ciudadano Digital</div>
+    <div class="mza-row">
+      <select id="selMza" onchange="onMzaChange()">
+        <option value="">&#8212; Elegi una manzana &#8212;</option>
+      </select>
+      <button class="btn btn-blue" id="btnVerificar" disabled onclick="verificarYCargar()">&#128269; Verificar e incorporar</button>
+      <button class="btn btn-green" id="btnVerSheets" disabled onclick="abrirSheets()">&#128202; Ver en Google Sheets</button>
+    </div>
+    <div id="mzaPreview"></div>
+    <div id="verificacionDiv" style="display:none"></div>
+    <div id="cargaStatus"></div>
+  </div>
+</div>
+
+<div class="card" id="fase2Card" style="display:none">
+  <div class="card-header"><span class="step">B</span> FASE 2 &mdash; Cargar comprobantes PDF</div>
+  <div class="card-body">
+    <div class="phase-badge">&#128196; Despues de descargar los PDFs de Ciudadano Digital</div>
+    <div class="drop-zone" id="dzPdf" onclick="document.getElementById('inPdf').click()">
+      <div class="icon">&#128196;</div>
+      <p>Arrastra o hace clic &middot; uno o varios <strong>PDF</strong></p>
+      <p style="font-size:.72rem;color:#999;margin-top:3px">El numero de comprobante se escribira directo en tu Google Sheets</p>
+      <input type="file" id="inPdf" accept=".pdf" multiple>
+    </div>
+    <div id="pdfChips" class="pdf-chips"></div>
+    <div class="actions">
+      <button class="btn btn-blue" id="btnProcess" disabled onclick="procesarPDFs()">&#9881; Procesar y guardar en Sheets</button>
+      <button class="btn btn-orange" id="btnScript" disabled onclick="toggleScript()">&#128013; Script Python (renombrar PDFs)</button>
+    </div>
+    <div id="pdfStatus"></div>
+    <div id="resultados"></div>
+    <div id="scriptSection" style="display:none;margin-top:14px"></div>
+  </div>
+</div>
+
+</div>
+<script>
+
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const CLIENT_ID='121729270383-ln306qqsg8fv2m215f65bve0vbq3apom.apps.googleusercontent.com';
+let SPREADSHEET_ID='1ujyd4Dp2oLAJbK8j5yLEk1vsgwtKdCLJ5PZPceMptyk'; // default, se puede cambiar
+const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+const DOC_DATA={"55":[{"lote":"4 y 5","matricula":"F°20165 A°1951","nombre":"Badia"},{"lote":"4 y 5","matricula":"1019804","nombre":"Badia"},{"lote":"6","matricula":"958718","nombre":"Moragues Miguel"},{"lote":"8","matricula":"935434","nombre":"Tobar Adolfo Exequiel"},{"lote":"10","matricula":"981052","nombre":"Gomila Rafael Casildo"},{"lote":"18","matricula":"982696","nombre":"Sucesion Indivisa de Gomila Esther"},{"lote":"19","matricula":"988354","nombre":"Esteve Emilio"},{"lote":"12 y 13","matricula":"1184285","nombre":"Uz Manuela"},{"lote":"16","matricula":"963423","nombre":"Gurini Rufina Juana"},{"lote":"9","matricula":"1214465","nombre":"Sucesión indivisa de"},{"lote":"15","matricula":"959999","nombre":"Quintela Mercedes"},{"lote":"20","matricula":"988560","nombre":"Sucesión indivisa de"},{"lote":"21","matricula":"1198774","nombre":"Sucesión indivisa de"},{"lote":"7","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"}],"56":[{"lote":"11","matricula":"933255","nombre":"Sucesion Indivisa de Be"},{"lote":"5","matricula":"988341","nombre":"Valli Carlos Alfredo"},{"lote":"15 y 16","matricula":"F°19662 A°1951","nombre":"Buday"},{"lote":"2","matricula":"949248","nombre":"Sucesión indivisa"},{"lote":"3","matricula":"950226","nombre":"Sucesión indivisa de"}],"57":[{"lote":"2","matricula":"1166017","nombre":"Luquet Alberto Eduardo"},{"lote":"3 y 4","matricula":"F°12594 A°1975","nombre":"Fantini Silvia Ana"},{"lote":"5","matricula":"909400","nombre":"Alonso Maria Antonia"},{"lote":"15","matricula":"1198776","nombre":"Bianchini Teresa"},{"lote":"16","matricula":"922104","nombre":"Cobos Antonio"},{"lote":"8","matricula":"988064","nombre":"Tibaudin Carlos"},{"lote":"13","matricula":"982484","nombre":"Mirone Horacio Victorio"}],"58":[{"lote":"4","matricula":"911185","nombre":"Buday Adalberto"},{"lote":"5","matricula":"911192","nombre":"Buday Adalberto"},{"lote":"7","matricula":"988442","nombre":"Miranda Mercedes"},{"lote":"8/10","matricula":"F°25337 A°1951","nombre":"Bobbio Hilda"},{"lote":"18","matricula":"988962","nombre":"Pisano Luis"},{"lote":"12","matricula":"904117","nombre":"Etcheverry Marelli Jose"},{"lote":"13","matricula":"980970","nombre":"Geiskkovitch Mordko"},{"lote":"14","matricula":"1233338","nombre":"Mancinelli Carlos"}],"59":[{"lote":"5","matricula":"897386","nombre":"Luy Lelio Hilario Bagnis"},{"lote":"3","matricula":"958029","nombre":"Corleto Carmelo"},{"lote":"18","matricula":"1059880","nombre":"Bernasconi Ismael"},{"lote":"11","matricula":"840253","nombre":"Bottlik Eva Maria"},{"lote":"19","matricula":"988559","nombre":"Reggiane Matilde"},{"lote":"20","matricula":"790124","nombre":"Sanchez Carlos Alberto"},{"lote":"22","matricula":"1848772","nombre":"Sociedad Colectiva"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"}],"60":[{"lote":"1","matricula":"1028105","nombre":"Noat Pablo"},{"lote":"3 y 4","matricula":"F°32304 A°1956","nombre":"Galveres Benito"},{"lote":"16","matricula":"988980","nombre":"Noat Jose"},{"lote":"11","matricula":"0877572","nombre":"Belda Maria Isabel"},{"lote":"7","matricula":"869993","nombre":"Sucesión Indivisa de"},{"lote":"17 y 18","matricula":"F°20076 A°1955","nombre":"Sucesion"},{"lote":"19 y 20 Dominio A° 24785 A°1951","matricula":"FOLIO CONDICIONAL","nombre":"Sucesión"}],"61":[{"lote":"13","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"6","matricula":"988352","nombre":"Esteve Emilio"},{"lote":"16","matricula":"988353","nombre":"Esteve Emilio"}],"62":[{"lote":"2","matricula":"F°20280 A°1951","nombre":"Acuña"},{"lote":"4","matricula":"948492","nombre":"Rios Hector Hugo"},{"lote":"6","matricula":"856795","nombre":"Barrionuevo Quintana"},{"lote":"8","matricula":"988917","nombre":"Capella Pedro"},{"lote":"9","matricula":"1794506","nombre":"Sorrentino Hector Horacio"},{"lote":"13","matricula":"F°4027 A°1954","nombre":"Sorrentino Hector Horacio"},{"lote":"1","matricula":"F°51203 A°1951","nombre":"Rosa Antonio y Otra"},{"lote":"5 F°8145 A°1986 a nombre de LOCER SRL.","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"63":[{"lote":"2","matricula":"762931","nombre":"Lopez y Garrido Carmen,"},{"lote":"21","matricula":"1125881","nombre":"Montenegro Pedro"},{"lote":"22","matricula":"856796","nombre":"Barrionuevo Quintana"},{"lote":"10","matricula":"957061","nombre":"Contin Jose Maria"},{"lote":"11","matricula":"1228477","nombre":"Diaz Elvira"},{"lote":"12","matricula":"967061","nombre":"Canepa Luis. CUENTA"},{"lote":"8","matricula":"929958","nombre":"Portela Irma Beatriz"},{"lote":"6","matricula":"988339","nombre":"Savio Ramona Ester"},{"lote":"19","matricula":"940464","nombre":"Bojczuk Miguel"},{"lote":"18","matricula":"940462","nombre":"Bojczuk Miguel"},{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"64":[{"lote":"2","matricula":"940023","nombre":"Di Lucca de Ghitardie"},{"lote":"3","matricula":"940024","nombre":"Di Lucca de Ghitardie"},{"lote":"4","matricula":"940026","nombre":"Di Lucca de Ghitardie"},{"lote":"8","matricula":"965082","nombre":"Morrochi Domingo Ivo"},{"lote":"9","matricula":"965083","nombre":"Morrochi Domingo Ivo"},{"lote":"12","matricula":"988965","nombre":"Canepa Luis"},{"lote":"21","matricula":"988070","nombre":"Vasta Rosa Gulotta"},{"lote":"6-7","matricula":"1214130","nombre":"Herranz Pio"},{"lote":"20","matricula":"813833","nombre":"Contarino Horacia,"},{"lote":"22","matricula":"929904","nombre":"Plaza Emiolio"}],"65":[{"lote":"2","matricula":"933050","nombre":"Huergo Alfredo Luis"},{"lote":"3","matricula":"934799","nombre":"Ontiveros Greta Nanzi"},{"lote":"22","matricula":"988340","nombre":"Broggi Enrique Jose"},{"lote":"9-10-11","matricula":"F°25101 A°1951","nombre":"Monayer Elena"},{"lote":"13","matricula":"980973","nombre":"Diaz Artura"},{"lote":"14","matricula":"988966","nombre":"Gaztelu Maria Perpetua"},{"lote":"19","matricula":"1059882","nombre":"Aseguinolaza Nelidad"},{"lote":"1","matricula":"912885","nombre":"Lopez Pereyra Hector"},{"lote":"4","matricula":"1132316","nombre":"Oyarzun Haydee Zulema"},{"lote":"5","matricula":"F°5245 A°1955","nombre":"Sucesion Indivisa de"},{"lote":"8","matricula":"949667","nombre":"Peralta Garcia Anibal"},{"lote":"12","matricula":"1061020","nombre":"Martinez Samuel del"},{"lote":"15","matricula":"1187930","nombre":"Cerutti Rauel Elvira"},{"lote":"21","matricula":"1061599","nombre":"Chapov Luis"},{"lote":"7","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"}],"66":[{"lote":"2","matricula":"1059703","nombre":"Hernandez Gimenez"},{"lote":"3","matricula":"1059732","nombre":"Santillan Ernesto"},{"lote":"7","matricula":"1059869","nombre":"Leone Juan Jose"},{"lote":"8","matricula":"1027507","nombre":"Mendoza Villegas"},{"lote":"1","matricula":"962334","nombre":"Gomez Elda"},{"lote":"16","matricula":"988918","nombre":"Zappalorti Dante"},{"lote":"15","matricula":"659884","nombre":"Rinaldi Miguel Angel"},{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"67":[{"lote":"1","matricula":"988548","nombre":"Cano Ramon Rosa"},{"lote":"4","matricula":"934183","nombre":"Maggio Ernesto Antonio"},{"lote":"6","matricula":"988255","nombre":"Vazquez Anacleta"},{"lote":"7","matricula":"934519","nombre":"Ivnisevic Ramon Nemesio"},{"lote":"8","matricula":"940587","nombre":"Rojas Adela del Carmen"},{"lote":"13","matricula":"987841","nombre":"Debock Anselmo y"},{"lote":"14","matricula":"1197828","nombre":"Pereyra Juan Pedro"},{"lote":"15","matricula":"962339","nombre":"Moldes Manuel"},{"lote":"16","matricula":"988549","nombre":"Cano Ramon Rosa"},{"lote":"9","matricula":"1059738","nombre":"Morales Florencia"},{"lote":"12","matricula":"932856","nombre":"Semino Héctor Jorge y"}],"68":[{"lote":"3","matricula":"954781","nombre":"Krupka Natalia"},{"lote":"11 y 15","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"16","matricula":"897237","nombre":"Sucesion Indivisa de"}],"68A":[{"lote":"2","matricula":"982490","nombre":"Sucesion indivisa de"},{"lote":"3","matricula":"987856","nombre":"Fernandez Teodoro"},{"lote":"16","matricula":"916593","nombre":"Matuk Raiodk Miguel"},{"lote":"17","matricula":"916594","nombre":"Matuk Raiodk Miguel"},{"lote":"7","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"10","matricula":"928945","nombre":"Sucesion Indivisa de"},{"lote":"9","matricula":"963423","nombre":"Sucesion Indivisa de"}],"69":[{"lote":"7","matricula":"922125","nombre":"Davila Hector Oscar"},{"lote":"8","matricula":"922126","nombre":"Davila Hector Oscar"},{"lote":"20","matricula":"948666","nombre":"Spector Cecilia"},{"lote":"11","matricula":"873713","nombre":"Vega Miguel"},{"lote":"12","matricula":"F°22034 A°1953","nombre":"Alarcon Alejandro"},{"lote":"15","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"19","matricula":"958721","nombre":"Jure Jose Marhe"},{"lote":"2","matricula":"659434","nombre":"Ramirez Miguel Angel"}],"69A":[{"lote":"9 y 10","matricula":"F°22412 A°1953","nombre":"Suc. Indivisa de"},{"lote":"11","matricula":"973408","nombre":"Alarcon Alejandro"},{"lote":"19","matricula":"980722","nombre":"Sucesion Indivisa de"}],"70":[{"lote":"2","matricula":"887558","nombre":"Zona de Lorenzo Norma"},{"lote":"4","matricula":"1819038","nombre":"Gudiño Juan Segundo,"},{"lote":"9","matricula":"966286","nombre":"Serra Jose"},{"lote":"17","matricula":"982523","nombre":"Balestrini Julian"},{"lote":"12","matricula":"980661","nombre":"Festchenko Pedro"},{"lote":"13","matricula":"F°20199 A°1951","nombre":"Bancalari Jacinta"},{"lote":"7 y 10","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"6","matricula":"958026","nombre":"Sucesión indivisa de"},{"lote":"8","matricula":"966285","nombre":"Sucesión indivisa de"},{"lote":"14","matricula":"988214","nombre":"Masello Domingo"},{"lote":"16","matricula":"F°18923 A°1951","nombre":"Sucesion Indivisa de"},{"lote":"21","matricula":"659933","nombre":"Barreiro Jorge Antonio"},{"lote":"22","matricula":"982619","nombre":"Torrente Juan"}],"71":[{"lote":"19","matricula":"1169037","nombre":"Sucesion indivisa de"},{"lote":"4","matricula":"979139","nombre":"Serra Jose"},{"lote":"5","matricula":"988644","nombre":"Videla Juan"},{"lote":"6","matricula":"988645","nombre":"Videla Juan"},{"lote":"7","matricula":"912889","nombre":"Garcia Horacio Felipe,"},{"lote":"8","matricula":"965654","nombre":"Prendvoj Jose"},{"lote":"9","matricula":"950615","nombre":"Acuña Manuel y Ciccola"},{"lote":"20 y 21","matricula":"F°27586 A°1951","nombre":"Perez Juan"},{"lote":"11","matricula":"941847","nombre":"Taboada Nicanor"},{"lote":"15","matricula":"1059870","nombre":"Sucesion Indivisa de"}],"72":[{"lote":"4","matricula":"721176","nombre":"Sambucetti Maria Celia"},{"lote":"5","matricula":"721177","nombre":"Sambucetti Maria Celia"},{"lote":"1","matricula":"933793","nombre":"Stefaniuk Esteban"},{"lote":"2","matricula":"856797","nombre":"Barrionuevo Quintana"},{"lote":"3","matricula":"856798","nombre":"Barrionuevo Quintana"},{"lote":"17","matricula":"936092","nombre":"Reyes de Martinez Maria"},{"lote":"13","matricula":"988132","nombre":"Garica Gomez Carmen"},{"lote":"11","matricula":"1199110","nombre":"Callegaro Oscar Lujan"},{"lote":"12","matricula":"782759","nombre":"Quintanilla Cesar"},{"lote":"20","matricula":"660154","nombre":"Grejo Ema"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER"}],"73":[{"lote":"2","matricula":"1024289","nombre":"De Dios Carlos Alberto"},{"lote":"3","matricula":"975255","nombre":"Gonzales Colinas Emilio"},{"lote":"7","matricula":"985200","nombre":"Dimattia Andres Avelino,"},{"lote":"10","matricula":"975765","nombre":"Callesen Juan Jorge"},{"lote":"11","matricula":"980969","nombre":"Rios Miguel"},{"lote":"19 y 21","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"13","matricula":"979136","nombre":"Lacquaniti Francisco"},{"lote":"20","matricula":"F°43644 A°1959","nombre":"Sucesion Indivisa de"},{"lote":"14","matricula":"1059739","nombre":"Lacquaniti Francisco"}],"74":[{"lote":"1","matricula":"975706","nombre":"Bietti Rosa y Bietti"},{"lote":"6","matricula":"942334","nombre":"Bertone Enrique Casimiro"},{"lote":"9","matricula":"796734","nombre":"Sucesión Indivisa de Elias"},{"lote":"14","matricula":"980950","nombre":"Bruno Mierzo Jose"},{"lote":"21","matricula":"982695","nombre":"Rozas Maria Angelica"},{"lote":"12","matricula":"659941","nombre":"Tortarolo Horacio Oscar"},{"lote":"19","matricula":"1306187","nombre":"Sucesión Indivisa de"},{"lote":"20","matricula":"831918","nombre":"Sucesión indivisa de"},{"lote":"22","matricula":"F°20200 A°1951","nombre":"Sucesión indivisa de"},{"lote":"7 y 8","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"}],"75":[{"lote":"1","matricula":"928369","nombre":"Sucesión indivisa de Rusconi Efrain"},{"lote":"3","matricula":"922109","nombre":"Intriago Eduardo Silvano"},{"lote":"6","matricula":"F°25910 A°1951","nombre":"German de Broggi"},{"lote":"7","matricula":"FOLIO CONDICIONAL","nombre":"Rondani de Mottesi"},{"lote":"10","matricula":"875767","nombre":"Etevenaux Eleodoro"},{"lote":"11","matricula":"875769","nombre":"Etevenaux Eleodoro"},{"lote":"19","matricula":"1019759","nombre":"Callegaro Albina"},{"lote":"5","matricula":"659165","nombre":"Mac Hannaford Carlos"},{"lote":"17","matricula":"659857","nombre":"Suc. Indivisa de"},{"lote":"18","matricula":"659858","nombre":""},{"lote":"12","matricula":"F°8145 A°1986","nombre":"LOCER"}],"76":[{"lote":"1","matricula":"988065","nombre":"Ruades Antonio Ramon"},{"lote":"2","matricula":"950631","nombre":"Fernandez Fermin Salvador"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"12","matricula":"659164","nombre":"Santoliquido Silvia"},{"lote":"15","matricula":"F°49852 A°1951","nombre":"Rita de"}],"77":[{"lote":"1","matricula":"930418","nombre":"Falco Florencio"},{"lote":"15","matricula":"981040","nombre":"Agüerre Pedro"},{"lote":"21","matricula":"660163","nombre":"Plutmann Fanny Aida"},{"lote":"18","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"12","matricula":"949668","nombre":"Mendez Laredo Martha"},{"lote":"16","matricula":"659915","nombre":"Baez Graciela Raquel"}],"78":[{"lote":"5-6-7","matricula":"1317526","nombre":"Bauer German Pedro"},{"lote":"3","matricula":"F°8145 A°1986","nombre":"LOCER"},{"lote":"15","matricula":"965655","nombre":"Lagos Julian Antonio"},{"lote":"16","matricula":"1024345","nombre":"Luri Silvano"},{"lote":"9","matricula":"949673","nombre":"Sanjuan Isidro Antonio"},{"lote":"10","matricula":"F°48331 A°1960","nombre":"Martinez Luis"},{"lote":"22","matricula":"654704","nombre":"Perelstein Gustavo Jorge"}],"79":[{"lote":"5","matricula":"921073","nombre":"Barbero Marcial"},{"lote":"7","matricula":"903087","nombre":"Martino Jose"},{"lote":"10","matricula":"842757","nombre":"Sabena Amando Bautista"},{"lote":"11","matricula":"842759","nombre":"Sabena Amando Bautista"},{"lote":"21","matricula":"FOLIO CONDICIONAL","nombre":"Lattanzi Humberto Pedro"}],"80":[{"lote":"4","matricula":"910817","nombre":"Diaz Jacinto"},{"lote":"1","matricula":"988186","nombre":"Ferrando Fortunato"},{"lote":"8","matricula":"980976","nombre":"Mellia Amado Felipe"},{"lote":"9","matricula":"964184","nombre":"Belardinelli Julio"},{"lote":"10","matricula":"1315473","nombre":"Cocuzza Cristobal"},{"lote":"18","matricula":"959595","nombre":"Fernando Fortunato"},{"lote":"19","matricula":"1024351","nombre":"Fernando Fortunato"},{"lote":"12","matricula":"980658","nombre":"Vaccarilli Armando"},{"lote":"14","matricula":"788930","nombre":"Bianchini y Vaccarilli"},{"lote":"9","matricula":"1214465","nombre":"Sucesión indivisa de"},{"lote":"13","matricula":"987858","nombre":"Bianchini Alberto"},{"lote":"16","matricula":"987985","nombre":"Bianchini Juan Esteban"}],"81":[{"lote":"2","matricula":"959593","nombre":"Pierotti Izino Francisco"},{"lote":"12","matricula":"F°43430 A°1952","nombre":"Alcon Procopio"},{"lote":"16","matricula":"988085","nombre":"Valli Pedro Jose"},{"lote":"18","matricula":"904089","nombre":"Bacchin Hose"},{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"9","matricula":"659388","nombre":"Corvalan Liliana Ines"},{"lote":"8","matricula":"659804","nombre":"Covalan Gustavo Hector"},{"lote":"15","matricula":"1202019","nombre":"Sucesión indivisa de"},{"lote":"4","matricula":"659931","nombre":"Pattini Claudia Alejandra"},{"lote":"21","matricula":"851781","nombre":"Suc. Indivisa deGareca"},{"lote":"22","matricula":"913665","nombre":"Suc. Indivisa de Fermani"},{"lote":"5","matricula":"850219","nombre":"Suc. Indivisa de Salva"}],"82":[{"lote":"3","matricula":"F°4001 A°1954","nombre":"Prado Morales Luis"},{"lote":"11","matricula":"930425","nombre":"Suc. indivisa de Ralero"},{"lote":"14","matricula":"935976","nombre":"Cipollone Jose"},{"lote":"15","matricula":"965084","nombre":"Fernandez Leonidas"},{"lote":"8","matricula":"660162","nombre":"Dominique Liliana Olga"},{"lote":"20","matricula":"949672","nombre":"Begino de Alonso Blanca"},{"lote":"21","matricula":"949674","nombre":"Begino Juan Luis"},{"lote":"22","matricula":"949373","nombre":"Begino Horacio Daniel"},{"lote":"4","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"85":[{"lote":"1","matricula":"988973","nombre":"Guigue Ovidio Jose"},{"lote":"5","matricula":"1199930","nombre":"Riera Adrover Pedro"},{"lote":"11","matricula":"942363","nombre":"Suc. Indivisa de Ferrer"},{"lote":"12","matricula":"F°31931 A°1978","nombre":"Balmaceda Ramon"},{"lote":"14","matricula":"988944","nombre":"Paianaroli Bernardo"},{"lote":"18","matricula":"F°6981 A°1955","nombre":"Cromwell Olivieri Hto"},{"lote":"19","matricula":"1061594","nombre":"Kennard Austen Hore"},{"lote":"20","matricula":"988441","nombre":"Kennard Austen Hore"},{"lote":"16","matricula":"988350","nombre":"Goia Juan Fransisco"},{"lote":"3","matricula":"1022442","nombre":"Sucesion Indivisa de"},{"lote":"8","matricula":"781047","nombre":"Ortiz Manuel"},{"lote":"13","matricula":"982270","nombre":"Suc. Indivisa de"},{"lote":"2","matricula":"F°8145 A°1986","nombre":""}],"86":[{"lote":"1","matricula":"659940","nombre":""},{"lote":"2","matricula":"F°8145 A°1986","nombre":"LOCER"},{"lote":"12","matricula":"942296","nombre":"Martinez Castellano"},{"lote":"13","matricula":"942319","nombre":"Martinez Castellano"},{"lote":"14","matricula":"942323","nombre":"Martinez Castellano"},{"lote":"15","matricula":"F°20077 A°1955","nombre":"Fernandez de Rubio"},{"lote":"20","matricula":"660164","nombre":"Perez Silvia Beatriz"},{"lote":"17","matricula":"682553","nombre":"Molina Marcela Isabel"},{"lote":"22","matricula":"659869","nombre":"Cadillac Ricardo"}],"87":[{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER"},{"lote":"6","matricula":"940089","nombre":"Aguilar Blanca Argentina"},{"lote":"17","matricula":"338276","nombre":"Leiva Andronico"},{"lote":"20","matricula":"659749","nombre":"Maggi Jorge Raul"},{"lote":"4","matricula":"F°4808 A°1989","nombre":"Catacata Miguel Angel"},{"lote":"5","matricula":"997624","nombre":"Catacata Miguel Angel"}],"88":[{"lote":"1 y 2","matricula":"F°20905 A°1951","nombre":"Braso Leonardo"},{"lote":"3 y 4","matricula":"F°18631 A°1951","nombre":"Papalepore"},{"lote":"6","matricula":"1169038","nombre":"Gallego Rodrigo Agapito"},{"lote":"7","matricula":"F°33373 A°1952","nombre":""},{"lote":"15 y 16","matricula":"1317178","nombre":"Braso Leonardo"},{"lote":"17/19","matricula":"F°20495 A°1951","nombre":"Braso Leonardo"},{"lote":"20/22","matricula":"F°20513 A°1951","nombre":"Braso Leonardo"},{"lote":"12","matricula":"965925","nombre":"Girbau Alberto"},{"lote":"13","matricula":"965926","nombre":"Girbau Alberto"},{"lote":"11","matricula":"980653","nombre":"Gil Antonio"},{"lote":"14","matricula":"980654","nombre":"Gil Antonio"}],"89":[{"lote":"1","matricula":"949671","nombre":"Hegi Pablo y Ferrero"},{"lote":"3","matricula":"1073490","nombre":"Battigelli Emilia"},{"lote":"4","matricula":"912612","nombre":"Longhi Eugenia Elena"},{"lote":"16 y 17","matricula":"F°20487 A°1951","nombre":"Reza Antonio"},{"lote":"18","matricula":"1198777","nombre":"Corsolini Bruno Silvio"},{"lote":"19","matricula":"930318","nombre":"Chedrese Nassif"},{"lote":"12 y 13","matricula":"F°46433 A°1951","nombre":"Alabe Brahim"},{"lote":"14 y 15","matricula":"F°20278 A°1951","nombre":"Reza Luis"},{"lote":"8","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"90":[{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"15","matricula":"918693","nombre":"Suc. Indivisa de Burgos"}],"91":[{"lote":"7","matricula":"659751","nombre":"Casais Ruben"},{"lote":"23","matricula":"911414","nombre":"Zuchmitten Clemente"},{"lote":"24","matricula":"911416","nombre":"Zuchmitten Clemente"},{"lote":"9","matricula":"F°20219 A°1963","nombre":"Frua Oracio"},{"lote":"10","matricula":"F°20219 A°1963","nombre":"Frua Oracio"},{"lote":"13","matricula":"930869","nombre":"Suc. Indivisa de Luschesi"},{"lote":"14","matricula":"930872","nombre":"Suc. Indivisa de Luschesi Angel"},{"lote":"19","matricula":"911535","nombre":"Gonzalez Nicolas Delfor"},{"lote":"2","matricula":"F°3196 A°1954","nombre":"Suc. Indivisa de Gianco"},{"lote":"17","matricula":"930433","nombre":"Sucesión indivisa de"},{"lote":"8","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"92":[{"lote":"4","matricula":"949669","nombre":"Golovca Alberto"},{"lote":"5","matricula":"949676","nombre":"Golovca Alberto"},{"lote":"13","matricula":"F°19208 A°1951","nombre":"Obrador Mateo"},{"lote":"8","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"93":[{"lote":"1","matricula":"856801","nombre":"Barrionuevo Jorge Ramon"},{"lote":"2","matricula":"1059843","nombre":"Gonzalez Serafin"},{"lote":"10","matricula":"982486","nombre":"Baltagliero Maria"},{"lote":"11","matricula":"F°24132 A°1951","nombre":"Malherio Manuel"},{"lote":"4","matricula":"659792","nombre":"Hernandez de Coppola An"},{"lote":"22","matricula":"653258","nombre":"Rey Edgardo Julio"},{"lote":"18","matricula":"1228471","nombre":"Suc. Indivisa de"},{"lote":"17","matricula":"982496","nombre":"Sucesión indivisa de"}],"94":[{"lote":"14","matricula":"1059719","nombre":"Monaco Angel Rafael"},{"lote":"16 y 17","matricula":"F°19129 A°1951","nombre":"Monayer"},{"lote":"12","matricula":"974973","nombre":"Dodorico Martin"},{"lote":"19","matricula":"1059705","nombre":"Manzur Selman"},{"lote":"21","matricula":"954780","nombre":"Garcia Dimas"},{"lote":"4","matricula":"988200","nombre":"Delgado Martin"},{"lote":"1","matricula":"987969","nombre":"Ramon Luis Antonio"},{"lote":"2","matricula":"1793568","nombre":"Gabaglio Hector"},{"lote":"15","matricula":"932568","nombre":"Lombardi Silvio"},{"lote":"13","matricula":"950155","nombre":"Sucesión indivisa de"},{"lote":"18","matricula":"1201264","nombre":"Negro Ernesto Jose"},{"lote":"20","matricula":"982513","nombre":"Porta Araldo"},{"lote":"11","matricula":"659828","nombre":"Arar Claudio Omar"},{"lote":"7","matricula":"659932","nombre":"Veron Beatriz Susana"},{"lote":"6","matricula":"904398","nombre":"Perlo Pedro"},{"lote":"5","matricula":"988358","nombre":"Negro Antonio Pedro"},{"lote":"26","matricula":"F°3986 A°1967","nombre":"Politano Juan"},{"lote":"3","matricula":"659930","nombre":"Hernandez Carmen"}],"95":[{"lote":"2","matricula":"988567","nombre":"Scandizzo Pascual"},{"lote":"3","matricula":"856800","nombre":"Barrionuevo Quintana"},{"lote":"5","matricula":"1189720","nombre":"Magliavaca Roddo Angel"},{"lote":"9","matricula":"980563","nombre":"Sanchez Damian"},{"lote":"14","matricula":"1200212","nombre":"La Morgia Italia Brigida"},{"lote":"15","matricula":"1133877","nombre":"Ferrero Anastasia"},{"lote":"7","matricula":"980913","nombre":"Martini Ana Maria"},{"lote":"8","matricula":"F°3598 A°1953","nombre":"Suc. Indivisa de Garcia"},{"lote":"11","matricula":"125957","nombre":"Rivera Francisca Agustin"},{"lote":"12","matricula":"988487","nombre":"Baños Osvaldo Julio"},{"lote":"13","matricula":"982489","nombre":"Baños Osvaldo Julio"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"96":[{"lote":"5","matricula":"843760","nombre":"Sabena Roberto Juan"},{"lote":"7","matricula":"843762","nombre":"Sabena Roberto Juan"},{"lote":"9","matricula":"659954","nombre":"Nidal Construcciones SA"},{"lote":"13","matricula":"982498","nombre":"Lezcano Pedro"},{"lote":"1","matricula":"1061604","nombre":"Fajgenblat Hilel"},{"lote":"6","matricula":"877338","nombre":"Aulicio Domingo Rafael"},{"lote":"8","matricula":"659953","nombre":"Profiterra Desarrollos"},{"lote":"12","matricula":"988135","nombre":"Berger Sani"},{"lote":"14","matricula":"1188869","nombre":"Bolano"},{"lote":"16","matricula":"1061595","nombre":"Pacanowski Herszlik"},{"lote":"10","matricula":"F°8145 A°1986","nombre":"LOCER"}],"97":[{"lote":"5","matricula":"788170","nombre":"Sosa Jose del Rosario"},{"lote":"6","matricula":"976868","nombre":"Pinero Juan"},{"lote":"3","matricula":"1074773","nombre":"Umbine Francisco Rojas"},{"lote":"4","matricula":"980827","nombre":"Echalar Gallo Adela"},{"lote":"7","matricula":"F°8542 A°1955","nombre":"Di Meola Pascual"},{"lote":"8","matricula":"948190","nombre":"Vargas Gregorio Alios"},{"lote":"17","matricula":"988943","nombre":"Infante Sofanor Raul"}],"98":[{"lote":"3","matricula":"988973","nombre":"Legal Pedro"},{"lote":"8","matricula":"1132011","nombre":"Pla Luis Antonio Macias"},{"lote":"10","matricula":"1317492","nombre":"Sanchez Lazaro"},{"lote":"11","matricula":"987853","nombre":"Martha Jure Jose"},{"lote":"16","matricula":"941506","nombre":"Monti Ada Irma Esther"},{"lote":"1","matricula":"1059857","nombre":"Segat Duilio"},{"lote":"2","matricula":"1233352","nombre":"Sarsur Jorge Musa"},{"lote":"9","matricula":"F°1723 A°1952","nombre":"Jure Simon"}],"99":[{"lote":"2","matricula":"F°8145 A°1986","nombre":"LOCER"},{"lote":"5","matricula":"891718","nombre":"Suc. Indivisa de De Luca"},{"lote":"6","matricula":"891719","nombre":"Suc. Indivisa de De Luca"},{"lote":"16","matricula":"848765","nombre":"Suc. Indivisa de Salva"},{"lote":"18","matricula":"338277","nombre":"Calcoprieto Antonio"}],"100":[{"lote":"7","matricula":"FOLIO CONDICIONAL","nombre":"Ivanisevic Ramon Nemesio"},{"lote":"10","matricula":"1213270","nombre":"Giovanotti Ana Maria"},{"lote":"11","matricula":"1213270","nombre":"Giovanotti Ana Maria."},{"lote":"13","matricula":"824455","nombre":"Suc Indivisa de Ferrato"},{"lote":"2","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"101":[{"lote":"3","matricula":"934859","nombre":"Nughedu Jose."},{"lote":"22","matricula":"F°27159 A°1968","nombre":"Brizuela Isidro"},{"lote":"9","matricula":"935873","nombre":"Bianchetti Antonio"},{"lote":"10","matricula":"9353883","nombre":""},{"lote":"15","matricula":"934163","nombre":"Miguez Joaquin"},{"lote":"16","matricula":"1200525","nombre":"Miguez Joaquin"},{"lote":"17","matricula":"940154","nombre":"Valencia Luis Humberto"},{"lote":"13","matricula":"F°8145 A°1986","nombre":"LOCER"}],"102":[{"lote":"12","matricula":"987811","nombre":"Del Pino Fernando"},{"lote":"13","matricula":"1059737","nombre":"Altobelli Maria Josefa"},{"lote":"14","matricula":"958027","nombre":"Altobelli Jose Alberto"},{"lote":"6","matricula":"F°22076 A°1955","nombre":"Jure Jose Marhe"},{"lote":"20","matricula":"877862","nombre":"Manesi Antonio y Dali"},{"lote":"21","matricula":"877863","nombre":"Manesi Antonio y Dali"},{"lote":"22","matricula":"F°36261 A°1952","nombre":"Alvarez Gomez Jose"},{"lote":"19","matricula":"877861","nombre":"Manesi Antonio y Dali"},{"lote":"15","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"103":[{"lote":"3","matricula":"965081","nombre":"San Emeterio Blanca"},{"lote":"4","matricula":"959594","nombre":"Lacunza Lilia Noemi"},{"lote":"5","matricula":"930904","nombre":"Boschero Jose Espiritu"},{"lote":"22","matricula":"949244","nombre":"Grosso Gennarino"},{"lote":"23","matricula":"932883","nombre":"Migliano Filippina"},{"lote":"24","matricula":"933713","nombre":"Migliano Fransisco"},{"lote":"25","matricula":"933717","nombre":"Migliano Fransisco"},{"lote":"13","matricula":"987836","nombre":"Mancini Remigio"},{"lote":"15","matricula":"1199740","nombre":"Gonzalez Fransisco"},{"lote":"17","matricula":"820361","nombre":"Sague Juan Antonio"},{"lote":"18","matricula":"820364","nombre":"Sague Juan Antonio"},{"lote":"19","matricula":"820367","nombre":"Sague Juan Antonio"},{"lote":"26","matricula":"659886","nombre":"Fransisco Gonzalo"},{"lote":"21","matricula":"932942","nombre":"Perez Blabino Eduardo"},{"lote":"8","matricula":"934099","nombre":"Dominguez Dante"},{"lote":"9","matricula":"934102","nombre":"Dominguez Dante"},{"lote":"10","matricula":"930437","nombre":"Dominguez Dante"},{"lote":"11","matricula":"930438","nombre":"Dominguez Dante"},{"lote":"12","matricula":"932002","nombre":"Dominguez Irma del"},{"lote":"2","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"104":[{"lote":"5 y 6","matricula":"F°1371 A°1954","nombre":"Giannasi Luis"},{"lote":"7","matricula":"815626","nombre":"Canedo Hortensia, Diaz y"},{"lote":"8","matricula":"976897","nombre":"Tamantini Atilio Cesar"},{"lote":"9","matricula":"1316881","nombre":"Riquelme Eduardo"},{"lote":"2","matricula":"784477","nombre":"Paita Ermelinda, Caniffi"},{"lote":"13","matricula":"FOLIO CONDICIONAL","nombre":"Romegialli Ricardi C"},{"lote":"10","matricula":"659868","nombre":"Urgoiti Ricardo"},{"lote":"4","matricula":"980562","nombre":"Bressano Francisco,"}],"105":[{"lote":"7","matricula":"F°4781 A°1977","nombre":"Simmonds"},{"lote":"12","matricula":"982261","nombre":"Pepe Filomena Zenobio"},{"lote":"19","matricula":"980564","nombre":"Waskiesienski Demetrio"},{"lote":"4","matricula":"F°7916 A°1952","nombre":"Vigo de Biedma Amelia"},{"lote":"2","matricula":"815627","nombre":"Canedo Hortencia"},{"lote":"22","matricula":"932788","nombre":"Bandar Yamil"},{"lote":"13","matricula":"980556","nombre":"Zenobio Carlos"},{"lote":"14","matricula":"805687","nombre":"Jonte de Abraham Sara"},{"lote":"16","matricula":"660129","nombre":"Ruben Eduardo Benigno"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"106":[{"lote":"3","matricula":"F°42096 A°1959","nombre":"Braida Atilio"},{"lote":"8","matricula":"072119","nombre":"Escaler Paulina"},{"lote":"13","matricula":"0904105","nombre":"Gozzano Catalna"},{"lote":"7","matricula":"918258","nombre":"Kamandaro Daniel"},{"lote":"9","matricula":"721234","nombre":"Gerez Delicia Trinidad"},{"lote":"15","matricula":"659835","nombre":"Solis Blanca Haydee"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"107":[{"lote":"1","matricula":"F°187 A°1959","nombre":"Obrador Mateo"},{"lote":"3","matricula":"898108","nombre":"Herrera Carlos Alberto"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"18","matricula":"F°19532 A°1960","nombre":"Suc. Indivisa de Ricci"},{"lote":"12","matricula":"659955","nombre":"Suc. Indivisa de Vannetti Augusto"},{"lote":"7","matricula":"920091","nombre":"Suc. Indivisa de Archaga"}],"108":[{"lote":"8","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"3","matricula":"939543","nombre":"Linares Juan"},{"lote":"13","matricula":"889353","nombre":"Suc. Indivisa de Meccia"},{"lote":"10","matricula":"818422","nombre":"Suc. Indivisa de Aparicio"},{"lote":"9","matricula":"818423","nombre":"Suc. Indivisa de Aparicio Pedro"},{"lote":"19","matricula":"659632","nombre":"Suc. Indivisa de Valan"},{"lote":"22","matricula":"625302","nombre":"Sesti Maria Isabel"}],"109":[{"lote":"1","matricula":"896754","nombre":"Carnaghi Juan Luis"},{"lote":"2","matricula":"948186","nombre":"Cestau Jose"},{"lote":"3","matricula":"989413","nombre":"Rubino Concepción y"},{"lote":"4","matricula":"1228474","nombre":"Knight Alan Gwyer"},{"lote":"5","matricula":"F°18328 A°1951","nombre":"Knight Alan Gwyer"},{"lote":"18","matricula":"1019802","nombre":"Piccardo Roman Jose"},{"lote":"9","matricula":"F°20208 A°1963","nombre":"Forgione Roberto"},{"lote":"10","matricula":"988958","nombre":""},{"lote":"19","matricula":"988134","nombre":"Guglielmelli Pablo"},{"lote":"20","matricula":"931167","nombre":"Bonnet Gustavo Alberto"},{"lote":"21","matricula":"1198855","nombre":"Castañares Maria"},{"lote":"12","matricula":"937958","nombre":"Dei Castelli Emilio"},{"lote":"15","matricula":"935441","nombre":"Magnaghi Hugo"},{"lote":"16","matricula":"955100","nombre":"Ariagno Miguel"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"110":[{"lote":"1","matricula":"F°8145 A°1986","nombre":""},{"lote":"4","matricula":"740351","nombre":"Radio Olga Beatriz"},{"lote":"9","matricula":"659856","nombre":"Gomez Alberto Pedro"},{"lote":"10","matricula":"659867","nombre":"Suc. Indivisa de Torres"},{"lote":"11","matricula":"659942","nombre":"Sanchez Hugo Fransisco y"},{"lote":"12","matricula":"659943","nombre":"Sanchez Hugo Fransisco"},{"lote":"15","matricula":"659859","nombre":"Buglione Nestor Anibal"},{"lote":"18","matricula":"659952","nombre":"Anastasi Carlos Ernesto"},{"lote":"22","matricula":"659829","nombre":"Degano Carlos Emilio"}],"111":[{"lote":"3","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"12","matricula":"918943","nombre":"Noguera Maria Dolores"}],"112":[{"lote":"1","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"},{"lote":"10","matricula":"659870","nombre":"Ferrari Norberto Manuel"},{"lote":"12","matricula":"942345","nombre":"Pheupin Amado Julio"},{"lote":"17","matricula":"935240","nombre":"Epelde Carlos Alberto"},{"lote":"19","matricula":"949797","nombre":"Naaman Mohamad Moalla"},{"lote":"20","matricula":"1025974","nombre":"Naaman Mohamad Moalla"},{"lote":"6","matricula":"659944","nombre":"Fritz Domingo Manuel"},{"lote":"7","matricula":"659945","nombre":"Fritz Domingo Manuel"},{"lote":"11","matricula":"1209434","nombre":"Castelli Oscar Raul"},{"lote":"21","matricula":"965425","nombre":"Ale Julio"}],"113":[{"lote":"4","matricula":"F°2292 A°1963","nombre":"Scamara Federico"},{"lote":"15","matricula":"954824","nombre":"Panico Guillermo"},{"lote":"9","matricula":"F°41809 A°1959","nombre":"Suc. Indivisa de"},{"lote":"12","matricula":"1166245","nombre":"Kennard Gabriel Vernon"},{"lote":"13","matricula":"1019766","nombre":"Lynch Enriqueta Maria"},{"lote":"14","matricula":"340333","nombre":"Pacheco Facundo Romeo"},{"lote":"2","matricula":"F°8145 A°1986","nombre":"LOCER SRL"}],"114":[{"lote":"1","matricula":"F°8145 A°1986","nombre":""},{"lote":"22","matricula":"918863","nombre":"Suc. indivisa de Garcia"},{"lote":"7","matricula":"876350","nombre":"Carbajo Guzman Isaac"},{"lote":"11","matricula":"939677","nombre":"Folli Carlota"},{"lote":"14","matricula":"981622","nombre":"Pagnoni Settimia"},{"lote":"15","matricula":"981621","nombre":"Pagnoni Settimia"},{"lote":"17","matricula":"978971","nombre":"Turland Walter Philip"},{"lote":"19","matricula":"877655","nombre":"Mansuti Livio"},{"lote":"10","matricula":"659668","nombre":"Cabrio Ruben Oscar"},{"lote":"20","matricula":"956991","nombre":"Tombetta Elionel Carlos"}],"115":[{"lote":"1","matricula":"F°8145 A°1986","nombre":""},{"lote":"9","matricula":"888800","nombre":"Moran Corina"},{"lote":"15","matricula":"1208524","nombre":"Paleo Ricardo"},{"lote":"20","matricula":"659803","nombre":"Rosales Paulo Viterve"},{"lote":"18","matricula":"934705","nombre":"Colombo Hector"},{"lote":"19","matricula":"920155","nombre":"Alonso Maria Luisa"}],"117":[{"lote":"1","matricula":"F°8145 A°1986","nombre":""},{"lote":"2","matricula":"930421","nombre":"Suc. Indivisa de Bono"},{"lote":"4","matricula":"930441","nombre":"Suc. Indivisa de Bono"},{"lote":"11","matricula":"909754","nombre":"Gonzalez Ramon Alejandro"}],"118":[{"lote":"5","matricula":"982519","nombre":"Baliño Maria Asuncion"},{"lote":"4","matricula":"914666","nombre":"Scamara Federico"},{"lote":"1","matricula":"904088","nombre":"Masillo Spartaco"},{"lote":"8","matricula":"1068125","nombre":"Kirsch Fransisco"},{"lote":"12","matricula":"928346","nombre":"Albarez Victoriano"},{"lote":"13","matricula":"928350","nombre":"Albarez Victoriano"},{"lote":"16","matricula":"988317","nombre":"Blumetti Rosa Filomena"},{"lote":"3","matricula":"979114","nombre":"Perez Jose Maria"},{"lote":"15","matricula":"950162","nombre":"Ponce Pabla Emma,"},{"lote":"9","matricula":"980956","nombre":"Jesensky Martin"}],"119":[{"lote":"2","matricula":"659934","nombre":"Vannetti Beatriz Elena"},{"lote":"3","matricula":"659935","nombre":"Vannetti Beatriz Elena"},{"lote":"9","matricula":"F°8145 A°1986","nombre":"LOCER"},{"lote":"11","matricula":"F°25975 A°1963","nombre":"Coloccini Jose"},{"lote":"20","matricula":"934232","nombre":"Tula Hilda Fransisco"},{"lote":"17 y 18","matricula":"F°49428 A°1951","nombre":"Sucesión"},{"lote":"12","matricula":"1059740","nombre":"Fernandez Lorenzo"}],"120":[{"lote":"1","matricula":"892632","nombre":"Suc. indivisa de Quatrini"}],"121":[{"lote":"5","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"},{"lote":"2","matricula":"659916","nombre":"Casto Maria C"},{"lote":"3","matricula":"659917","nombre":"Casto Maria C"},{"lote":"4","matricula":"659918","nombre":"Casto Maria C"}],"123":[{"lote":"2","matricula":"F°20114 A°1951","nombre":"Seguro Juan"},{"lote":"6","matricula":"9893161","nombre":"Ottin Valentin"},{"lote":"7","matricula":"988308","nombre":"Ayala Andres"},{"lote":"8","matricula":"982697","nombre":"Poyo Iris Angelica"},{"lote":"9/12","matricula":"1187855","nombre":"Rodriguez Armando"},{"lote":"17","matricula":"888812","nombre":"Croci Dalia Clementina"}],"125":[{"lote":"4","matricula":"948192","nombre":"Duran Maria Sara"},{"lote":"10","matricula":"856802","nombre":"Barrionuevo Jorge"},{"lote":"11","matricula":"949845","nombre":"Pastorini Manuel"},{"lote":"12 - 13","matricula":"1218548","nombre":"Piñack Sara Paulina"},{"lote":"14 - 15 -16","matricula":"F°47981 A°1977","nombre":"May"},{"lote":"17 - 18","matricula":"F°47981 A°1977","nombre":"May Simmonds"},{"lote":"2","matricula":"385149","nombre":"Liberdi Ruben Roberto"},{"lote":"1","matricula":"1198781","nombre":"Sucesión Indivisa de"}],"127":[{"lote":"3","matricula":"F°48214 A°1951","nombre":"Aviano Tssan Alfredo"},{"lote":"4","matricula":"1431653","nombre":"Marca Haydee Irene y"},{"lote":"8","matricula":"856803","nombre":"Barrionuevo Quintana"},{"lote":"1","matricula":"982491","nombre":"Lopez Enrique Luis, Lopez"}],"128":[{"lote":"8","matricula":"981092","nombre":"Scarafiocca Jose"},{"lote":"2","matricula":"F°25741 A°1951","nombre":"Machado Augusto"},{"lote":"3","matricula":"987864","nombre":"Iovane Blas"},{"lote":"12","matricula":"F°45781 A°1951","nombre":"Nicolas Francisco C"},{"lote":"13","matricula":"981170","nombre":"Digrado Pablo"},{"lote":"6","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"7","matricula":"1125932","nombre":"Suc. Indivisa de Maessen"},{"lote":"9","matricula":"811014","nombre":"Suc. Indivisa de Santi"},{"lote":"11","matricula":"772453","nombre":"Piccini Marta Susana"},{"lote":"1","matricula":"700723","nombre":"Altamirano Blanca Maria"}],"129":[{"lote":"10","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"},{"lote":"11","matricula":"F°8145 A°1986","nombre":"LOCER S.R.L"},{"lote":"13","matricula":"881292","nombre":"Gaudelli Aida Margot"},{"lote":"14","matricula":"881298","nombre":"Gaudelli Aida Margot"},{"lote":"7","matricula":"988254","nombre":"Ruiz y Ruiz de Suarez"},{"lote":"2","matricula":"988199","nombre":"Piatti Miguel Jose"},{"lote":"3","matricula":"F°32550 A°1952","nombre":"Suc. Indivisa de Piatti"},{"lote":"4","matricula":"980911","nombre":"Milanesi Anselmo Jose"},{"lote":"24","matricula":"1059489","nombre":"Olea Ygnacio Julian"},{"lote":"23","matricula":"987823","nombre":"Suc. Indivisa de Viglione"},{"lote":"17","matricula":"654705","nombre":"Perelstein Gustavo Jorge"}],"130":[{"lote":"3","matricula":"929992","nombre":"Backenroth Clara"},{"lote":"4 Dominio MFR 929993 a nombre de Backenroth Clara.","matricula":"929993","nombre":"Backenroth Clara"},{"lote":"5","matricula":"1133458","nombre":"Talpalar Ernesto"},{"lote":"6","matricula":"1133460","nombre":"Talpalar Ernesto"},{"lote":"21 y 22","matricula":"F°55135 A°1951","nombre":"Garcia Aranibar"},{"lote":"10","matricula":"878112","nombre":"Barredo Carlos Alberto"},{"lote":"16","matricula":"966298","nombre":"Garzon Alejandro"},{"lote":"17","matricula":"1317340","nombre":"Gilaberte Pedro"},{"lote":"18","matricula":"F°35932 A°1953","nombre":"Gilaberte Pedro"},{"lote":"19","matricula":"1059842","nombre":"Oltolina Victorio"},{"lote":"7","matricula":"949787","nombre":"Germinario Celestino"},{"lote":"8","matricula":"659390","nombre":"Armella Agapito"}],"131":[{"lote":"10- 11 - 12","matricula":"F°220702 A°1955","nombre":"Suc"},{"lote":"15","matricula":"659890","nombre":"Jabbaz Nelida"},{"lote":"7","matricula":"1210775","nombre":"Vaca Pio"},{"lote":"1","matricula":"1172010","nombre":"Melano Angel"},{"lote":"14","matricula":"F°8145 A°1986","nombre":"LOCER SRL"},{"lote":"16","matricula":"1185691","nombre":"Melano Angel"},{"lote":"5","matricula":"940175","nombre":"Herrera Badri"}],"132":[{"lote":"1","matricula":"948019","nombre":"Saka Juan"},{"lote":"3","matricula":"948023","nombre":"Saka Juan"},{"lote":"4","matricula":"948026","nombre":"Saka Juan"},{"lote":"5","matricula":"988068","nombre":"Otaola Julio"},{"lote":"14","matricula":"F°23117 A°1956","nombre":"Cabral Maria Luisa"},{"lote":"15","matricula":"980211","nombre":"Peñaranda Pedro Serapio"},{"lote":"16","matricula":"948028","nombre":"Saka Juan"},{"lote":"2","matricula":"659890","nombre":"Aragon Gregorio Carlos"},{"lote":"13","matricula":"1059875","nombre":"Otaola Julio"}]};
+
+let accessToken=null, userProfile=null;
+let pdfFiles=[], resultados=[];
+let mzaSel=null;
+let sheetsRows=[];
+
+window.onGoogleLibraryLoad = initGoogle;
+if(typeof google !== 'undefined') initGoogle();
+
+function loginGoogle(){
+  const tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES + ' https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback: async (tokenResponse)=>{
+      accessToken=tokenResponse.access_token;
+      // Get user info
+      const res=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+accessToken}});
+      userProfile=await res.json();
+      userProfile.name=userProfile.name||userProfile.email;
+      userProfile.picture=userProfile.picture||'';
+      mostrarUsuario();
+      cargarDesdeSheets();
+    }
+  });
+  tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+function initGoogle(){
+  const sel=document.getElementById('selMza');
+  Object.keys(DOC_DATA).sort((a,b)=>isNaN(a)||isNaN(b)?a.localeCompare(b):+a-+b).forEach(mza=>{
+    const o=document.createElement('option');
+    o.value=mza; o.textContent='Manzana '+mza+'  ('+DOC_DATA[mza].length+' lotes)';
+    sel.appendChild(o);
+  });
+};
+
+// onLoginSuccess replaced by loginGoogle()
+
+function mostrarUsuario(){
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('userInfo').style.display='block';
+  document.getElementById('userInfo').innerHTML=
+    '<div class="user-info">'+
+    '<img src="'+userProfile.picture+'" alt="foto">'+
+    '<div><div class="name">&#10003; '+userProfile.name+'</div>'+
+    '<div class="email">'+userProfile.email+' &middot; Conectado a Google Sheets</div></div>'+
+    '<button class="btn btn-red" style="margin-left:auto;padding:5px 12px;font-size:.78rem" onclick="cerrarSesion()">Desconectar</button>'+
+    '</div>';
+  document.getElementById('fase1Card').style.display='block';
+  document.getElementById('fase2Card').style.display='block';
+  document.getElementById('btnVerSheets').disabled=false;
+}
+
+function cerrarSesion(){
+  google.accounts.id.disableAutoSelect();
+  accessToken=null; userProfile=null; sheetsRows=[];
+  document.getElementById('loginBox').style.display='block';
+  document.getElementById('userInfo').style.display='none';
+  document.getElementById('fase1Card').style.display='none';
+  document.getElementById('fase2Card').style.display='none';
+}
+
+function abrirSheets(){
+  window.open('https://docs.google.com/spreadsheets/d/'+SPREADSHEET_ID+'/edit','_blank');
+}
+
+async function cargarDesdeSheets(){
+  showMsg('cargaStatus','Leyendo tu Google Sheets...','info');
+  try{
+    const res=await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+SPREADSHEET_ID+'/values/A:E',
+      {headers:{Authorization:'Bearer '+accessToken}}
+    );
+    const data=await res.json();
+    if(!data.values){showMsg('cargaStatus','No se pudieron leer los datos.','warn');return}
+    const rows=data.values;
+    sheetsRows=[];
+    let curMza='';
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(r[0]&&String(r[0]).trim()!=='') curMza=String(r[0]).trim();
+      if(r[1]!==undefined||r[2]!==undefined){
+        sheetsRows.push({
+          rowNum:i+1,
+          mza:curMza,
+          lote:String(r[1]||'').trim(),
+          matricula:String(r[2]||'').trim(),
+          comprobante:String(r[3]||'').trim()
+        });
+      }
+    }
+    showMsg('cargaStatus','Google Sheets conectado &mdash; '+sheetsRows.length+' filas cargadas.','ok');
+  }catch(e){
+    showMsg('cargaStatus','Error al leer Sheets: '+e.message,'error');
+  }
+}
+
+function onMzaChange(){
+  mzaSel=document.getElementById('selMza').value||null;
+  const lotes=mzaSel?DOC_DATA[mzaSel]:[];
+  const prev=document.getElementById('mzaPreview');
+  if(!mzaSel){prev.innerHTML='';return}
+  let chips=lotes.map(function(l){
+    return '<div class="lote-chip">Lote <strong>'+l.lote+'</strong> &middot; <span class="mat">'+l.matricula+'</span></div>';
+  }).join('');
+  prev.innerHTML='<div class="preview-box"><h4>Manzana '+mzaSel+' &mdash; '+lotes.length+' lotes en el Doc:</h4><div class="lote-grid">'+chips+'</div></div>';
+  document.getElementById('verificacionDiv').style.display='none';
+  document.getElementById('cargaStatus').innerHTML='';
+  document.getElementById('btnVerificar').disabled=!mzaSel;
+}
+
+async function verificarYCargar(){
+  if(!mzaSel||!accessToken) return;
+  const docLotes=DOC_DATA[mzaSel];
+  const xlsMza=sheetsRows.filter(function(r){return r.mza===mzaSel});
+  const yaExisten=[], nuevos=[];
+  docLotes.forEach(function(l){
+    const existe=xlsMza.find(function(r){
+      return r.matricula===l.matricula ||
+        r.lote.replace(/\s/g,'').toLowerCase()===l.lote.replace(/\s/g,'').toLowerCase();
+    });
+    if(existe) yaExisten.push(Object.assign({},l,{rowNum:existe.rowNum,comprobante:existe.comprobante}));
+    else nuevos.push(l);
+  });
+
+  let html='';
+  if(yaExisten.length>0){
+    html+='<div class="warn-box"><strong>&#9888; '+yaExisten.length+' lote(s) de Manzana '+mzaSel+' ya existen en Sheets:</strong><ul>';
+    yaExisten.forEach(function(l){
+      html+='<li>Lote <strong>'+l.lote+'</strong> &middot; '+l.matricula+(l.comprobante?' &middot; Comp: '+l.comprobante:' &middot; (sin comprobante)')+'</li>';
+    });
+    html+='</ul><div style="margin-top:6px">No se modificar&aacute;n. Solo se agregar&aacute;n los '+nuevos.length+' lote(s) nuevo(s).</div></div>';
+  }
+  if(nuevos.length>0){
+    let spans=nuevos.map(function(l){return '<span style="margin-right:10px">Lote '+l.lote+' &middot; '+l.matricula+'</span>';}).join('');
+    html+='<div class="alert alert-ok" style="margin-top:9px">Se agregar&aacute;n <strong>'+nuevos.length+' lote(s) nuevo(s)</strong>:<br>'+spans+'</div>';
+    html+='<div class="actions"><button class="btn btn-green" id="btnConfirmar">&#10003; Confirmar y agregar en Google Sheets</button></div>';
+  } else {
+    html+='<div class="alert alert-warn" style="margin-top:9px">Todos los lotes de Manzana '+mzaSel+' ya existen.</div>';
+  }
+  document.getElementById('verificacionDiv').innerHTML=html;
+  document.getElementById('verificacionDiv').style.display='block';
+  if(nuevos.length>0){
+    document.getElementById('btnConfirmar').addEventListener('click',function(){confirmarCargaSheets(nuevos)});
+  }
+}
+
+async function confirmarCargaSheets(nuevos){
+  showMsg('cargaStatus','Escribiendo en Google Sheets...','info');
+  try{
+    const valores=nuevos.map(function(l,i){
+      return i===0?[mzaSel,l.lote,l.matricula,'','']:['',l.lote,l.matricula,'',''];
+    });
+    const body={values:valores};
+    const res=await fetch(
+      'https://sheets.googleapis.com/v4/spreadsheets/'+SPREADSHEET_ID+'/values/A:E:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS',
+      {method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(body)}
+    );
+    const data=await res.json();
+    if(data.error){showMsg('cargaStatus','Error: '+data.error.message,'error');return}
+    await cargarDesdeSheets();
+    showMsg('cargaStatus',
+      '<strong>'+nuevos.length+' lote(s) de Manzana '+mzaSel+' agregados en tu Google Sheets.</strong><br>'+
+      '&#128204; Abr&iacute; tu Sheets para ver las matr&iacute;culas y hacer el tr&aacute;mite en Ciudadano Digital. '+
+      '<a href="https://docs.google.com/spreadsheets/d/'+SPREADSHEET_ID+'/edit" target="_blank" style="color:#166534;font-weight:700">Abrir Sheets &rarr;</a>',
+      'ok');
+    document.getElementById('verificacionDiv').style.display='none';
+    document.getElementById('btnProcess').disabled=false;
+  }catch(e){
+    showMsg('cargaStatus','Error al escribir: '+e.message,'error');
+  }
+}
+
+// PDFs
+document.addEventListener('DOMContentLoaded',function(){
+  var dz=document.getElementById('dzPdf');
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('dragover')});
+  dz.addEventListener('dragleave',function(){dz.classList.remove('dragover')});
+  dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('dragover');cargarPDFs(e.dataTransfer.files)});
+  document.getElementById('inPdf').addEventListener('change',function(e){if(e.target.files.length)cargarPDFs(e.target.files)});
+});
+
+function cargarPDFs(files){
+  Array.from(files).forEach(function(f){if(!pdfFiles.find(function(p){return p.name===f.name}))pdfFiles.push(f)});
+  renderChips();
+  document.getElementById('btnProcess').disabled=pdfFiles.length===0||!accessToken;
+}
+function removePdf(idx){pdfFiles.splice(idx,1);renderChips();document.getElementById('btnProcess').disabled=pdfFiles.length===0||!accessToken}
+function renderChips(){
+  document.getElementById('pdfChips').innerHTML=pdfFiles.map(function(f,i){
+    var nombre=f.name.length>32?f.name.substring(0,30)+'...':f.name;
+    return '<div class="chip">&#128196; '+nombre+'<button onclick="removePdf('+i+')">&#10005;</button></div>';
+  }).join('');
+}
+
+async function extraerTextoPDF(file){
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  let txt='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i);
+    const ct=await pg.getTextContent();
+    txt+=ct.items.map(function(it){return it.str}).join(' ')+'\n';
+  }
+  return txt;
+}
+
+function parsearPDF(txt){
+  var r={};
+  var cm=txt.match(/(?:Nro\s+Comprobante[:\s]*|N.mero de Comprobante\s*)(\d{10,15})/i);
+  if(cm) r.comprobante=cm[1];
+  var fm=txt.match(/Folio[:\s]*(\d+)/i);
+  if(fm) r.folio=fm[1];
+  var am=txt.match(/A.o[:\s]*(\d{4})/i);
+  if(am) r.anio=am[1];
+  return r;
+}
+
+function buscarFila(folio,anio){
+  if(!folio) return null;
+  return sheetsRows.find(function(r){
+    var m=r.matricula.toLowerCase();
+    return m.indexOf('f')>=0 && m.indexOf(folio)>=0 && (!anio||m.indexOf(anio)>=0);
+  })||null;
+}
+
+function nombrePDF(row){
+  var mza=row.mza.trim();
+  var lote=row.lote.trim().replace(/\s+/g,'_').replace(/[\/\\]/g,'_');
+  var mat=row.matricula.trim().replace(/[°\s]/g,'_').replace(/\//g,'_');
+  return 'Mza_'+mza+'_Lot_'+lote+'_'+mat+'.pdf';
+}
+
+async function procesarPDFs(){
+  if(!accessToken){alert('Conectate con Google primero.');return}
+  resultados=[];
+  document.getElementById('resultados').innerHTML='<div class="alert alert-info">Procesando PDFs...</div>';
+  document.getElementById('btnProcess').disabled=true;
+  for(var i=0;i<pdfFiles.length;i++){
+    var file=pdfFiles[i];
+    try{
+      var txt=await extraerTextoPDF(file);
+      var datos=parsearPDF(txt);
+      var fila=null;
+      if(datos.folio&&datos.anio) fila=buscarFila(datos.folio,datos.anio);
+      if(!fila&&datos.folio) fila=buscarFila(datos.folio,'');
+      if(fila&&datos.comprobante){
+        await escribirEnSheets(fila.rowNum,datos.comprobante);
+        fila.comprobante=datos.comprobante;
+      }
+      resultados.push({archivo:file.name,datos:datos,fila:fila,nombre:fila?nombrePDF(fila):null,carpeta:fila?'Manzana_'+fila.mza:null});
+    }catch(err){
+      resultados.push({archivo:file.name,error:err.message});
+    }
+  }
+  renderResultados();
+  document.getElementById('btnProcess').disabled=false;
+  document.getElementById('btnScript').disabled=false;
+}
+
+async function escribirEnSheets(rowNum,comprobante){
+  var range='D'+rowNum;
+  var body={values:[[comprobante]]};
+  await fetch(
+    'https://sheets.googleapis.com/v4/spreadsheets/'+SPREADSHEET_ID+'/values/'+range+'?valueInputOption=USER_ENTERED',
+    {method:'PUT',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(body)}
+  );
+}
+
+function renderResultados(){
+  var ok=resultados.filter(function(r){return r.fila}).length;
+  var warn=resultados.filter(function(r){return !r.error&&!r.fila}).length;
+  var err=resultados.filter(function(r){return r.error}).length;
+  var h='<div class="summ">'+
+    '<div class="summ-item"><div class="n">'+resultados.length+'</div><div class="l">PDFs procesados</div></div>'+
+    '<div class="summ-item"><div class="n" style="color:#166534">'+ok+'</div><div class="l">Guardados en Sheets</div></div>'+
+    '<div class="summ-item"><div class="n" style="color:#b45309">'+warn+'</div><div class="l">Sin coincidencia</div></div>'+
+    '<div class="summ-item"><div class="n" style="color:#991b1b">'+err+'</div><div class="l">Errores</div></div>'+
+    '</div>';
+  if(ok>0) h+='<div class="alert alert-ok"><strong>'+ok+' comprobante(s) guardados en tu Google Sheets.</strong> <a href="https://docs.google.com/spreadsheets/d/'+SPREADSHEET_ID+'/edit" target="_blank" style="color:#166534;font-weight:700">Abrir Sheets &rarr;</a></div>';
+  h+='<div class="tbl-wrap"><table><tr><th>PDF</th><th>N&deg; Comprobante</th><th>Folio / A&ntilde;o</th><th>Mza</th><th>Lote</th><th>Matr&iacute;cula</th><th>Nuevo nombre PDF</th><th>Estado</th></tr>';
+  resultados.forEach(function(r){
+    if(r.error){h+='<tr><td>'+r.archivo+'</td><td colspan="7"><span class="tag tag-no">Error: '+r.error+'</span></td></tr>';return}
+    var m=!!r.fila;
+    h+='<tr>'+
+      '<td style="font-size:.74rem;max-width:150px;word-break:break-all">'+r.archivo+'</td>'+
+      '<td><strong>'+(r.datos.comprobante||'&mdash;')+'</strong></td>'+
+      '<td>'+(r.datos.folio?'F&deg;'+r.datos.folio+' A&deg;'+(r.datos.anio||'?'):'&mdash;')+'</td>'+
+      '<td>'+(m?r.fila.mza:'&mdash;')+'</td>'+
+      '<td>'+(m?r.fila.lote:'&mdash;')+'</td>'+
+      '<td>'+(m?r.fila.matricula:'&mdash;')+'</td>'+
+      '<td style="font-size:.72rem;color:'+(m?'#166534':'#9ca3af')+'">'+(r.nombre||'&mdash;')+'</td>'+
+      '<td><span class="tag '+(m?'tag-ok':'tag-warn')+'">'+(m?'En Sheets':'Sin match')+'</span></td>'+
+      '</tr>';
+  });
+  h+='</table></div>';
+  document.getElementById('resultados').innerHTML=h;
+}
+
+function toggleScript(){
+  var sec=document.getElementById('scriptSection');
+  if(sec.style.display==='block'){sec.style.display='none';return}
+  var mapLines=resultados.filter(function(r){return r.nombre&&!r.error})
+    .map(function(r){return '    r"'+r.archivo+'": {"nombre": r"'+r.nombre+'", "carpeta": r"'+r.carpeta+'"}'})
+    .join(',\n');
+  var script='import os, shutil\n\nCARPETA_ORIGEN = r"C:\\Users\\TuUsuario\\Downloads"\nCARPETA_DESTINO = r"C:\\Estudio\\Comprobantes"\n\nARCHIVOS = {\n'+mapLines+'\n}\n\nok, errores = 0, []\nfor nombre, info in ARCHIVOS.items():\n    origen = os.path.join(CARPETA_ORIGEN, nombre)\n    carpeta = os.path.join(CARPETA_DESTINO, info["carpeta"])\n    destino = os.path.join(carpeta, info["nombre"])\n    if not os.path.exists(origen):\n        errores.append("No encontrado: "+nombre)\n        continue\n    os.makedirs(carpeta, exist_ok=True)\n    shutil.copy2(origen, destino)\n    print("OK: "+nombre+" -> "+info["nombre"])\n    ok += 1\nprint("\\nProcesados: "+str(ok)+"   Errores: "+str(len(errores)))\nfor e in errores: print("  " + e)\ninput("\\nPresiona Enter para cerrar...")';
+  sec.style.display='block';
+  sec.innerHTML='<div class="card"><div class="card-header">Script Python &mdash; Renombrar y mover PDFs</div><div class="card-body">'+
+    '<div class="alert alert-info" style="margin-bottom:9px">1. Guard&aacute; como <code>organizar_pdfs.py</code><br>2. Edit&aacute; CARPETA_ORIGEN y CARPETA_DESTINO<br>3. Ejecut&aacute; con Python</div>'+
+    '<button class="btn btn-blue" onclick="navigator.clipboard.writeText(document.getElementById(\'cod\').textContent).then(function(){alert(\'Copiado\')})" style="margin-bottom:9px">Copiar</button>'+
+    '<div class="code-block" id="cod">'+escHtml(script)+'</div></div></div>';
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cambiarSheets(){
+  var input=document.getElementById('inputSheetUrl').value.trim();
+  var match=input.match(/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if(!match){
+    document.getElementById('sheetsUrlStatus').innerHTML='<span style="color:#991b1b">&#10007; Link invalido. Asegurate de pegar el link completo de Google Sheets.</span>';
+    return;
+  }
+  SPREADSHEET_ID=match[1];
+  document.getElementById('sheetsUrlStatus').innerHTML='<span style="color:#166534">&#10003; Sheets actualizado correctamente.</span>';
+  // Si ya está logueado, recargar datos
+  if(accessToken) cargarDesdeSheets();
+}
+
+function showMsg(id,msg,type){
+  var d=document.getElementById(id);
+  var cls=type==='ok'?'ok':type==='error'?'error':type==='warn'?'warn':'info';
+  if(d) d.innerHTML='<div class="alert alert-'+cls+'">'+msg+'</div>';
+}
+
+</script>
+</body>
+</html>
