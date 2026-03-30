@@ -841,6 +841,7 @@ function parsearGoogleDoc(doc){
     if(text) bloques.push(text);
   });
   bloques.forEach(function(text){
+    console.log('DOC bloque:', JSON.stringify(text.substring(0,80)));
     var mzaM=text.match(/^\d+\.\s+Mz[a]?\s+(\w+(?:\s*[A-Z])?)/i)||text.match(/^Mz[a]?\s+(\w+(?:\s*[A-Z])?)/i);
     if(mzaM){curMza=mzaM[1].trim().replace(/\s+/g,'');if(!result[curMza])result[curMza]=[];return;}
     if(!curMza) return;
